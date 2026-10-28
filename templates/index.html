@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartScaler AI — Predictive Cloud Workload Orchestration</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-surface: rgba(18, 25, 43, 0.75);
+      --bg-surface-elevated: rgba(28, 38, 64, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: #6366f1;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --accent-indigo: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      
+      --gradient-brand: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      --glow-indigo: 0 0 25px rgba(99, 102, 241, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.5) 0px, transparent 100%);
+      background-attachment: fixed;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 5%;
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: var(--glow-indigo);
+    }
+
+    .brand-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Main Layout */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 28px auto;
+      padding: 0 20px 40px;
+    }
+
+    .hero-banner {
+      margin-bottom: 24px;
+      padding: 20px 24px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hero-banner-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .hero-banner-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .telemetry-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+    }
+
+    /* Card System */
+    .card {
+      background: var(--bg-surface);
+      background-image: var(--gradient-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title-icon {
+      color: var(--accent-indigo);
+      font-size: 18px;
+    }
+
+    /* Grid Layouts */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Workload Control Form */
+    .preset-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .preset-btn {
+      flex: 1;
+      min-width: 110px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .preset-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+      border-color: var(--accent-indigo);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-val-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: rgba(10, 15, 26, 0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent-indigo);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      background: rgba(15, 22, 38, 0.95);
+    }
+
+    .input-slider {
+      width: 100%;
+      margin-top: 8px;
+      accent-color: var(--accent-indigo);
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      background: var(--gradient-brand);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--glow-indigo);
+      transition: all 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.45);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Result Panel */
+    .metrics-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric-box {
+      background: rgba(10, 15, 26, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-indigo);
+    }
+
+    .metric-box.instances-box::before {
+      background: var(--accent-cyan);
+    }
+
+    .metric-caption {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-number {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .metric-number.cpu-val {
+      color: #e2e8f0;
+    }
+
+    .metric-number.instance-val {
+      color: var(--accent-cyan);
+    }
+
+    /* Action Recommendation Banner */
+    .action-banner {
+      padding: 16px 20px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .action-banner.scale-up {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fca5a5;
+    }
+
+    .action-banner.scale-down {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fcd34d;
+    }
+
+    .action-banner.steady {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    .action-icon {
+      font-size: 24px;
+    }
+
+    .action-text-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .action-text-desc {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* Cluster Nodes Visualizer */
+    .cluster-visualizer {
+      background: rgba(10, 15, 26, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .cluster-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nodes-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .node-slot {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .node-slot.active {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--accent-indigo);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    }
+
+    .node-slot.active .node-status {
+      color: var(--accent-emerald);
+      font-weight: 700;
+    }
+
+    .node-icon {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .node-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .node-status {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Explainer Cards Grid */
+    .info-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 850px) {
+      .info-steps-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .info-steps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-card {
+      background: rgba(10, 15, 26, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--accent-indigo);
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .step-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .step-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Chart & History Layout */
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .secondary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 240px;
+    }
+
+    /* History Table */
+    .table-container {
+      overflow-x: auto;
+      max-height: 240px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      background: #0f1523;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+
+    .instance-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px 5%;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+      background: rgba(9, 13, 22, 0.95);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-right {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-indigo);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>SmartScaler AI</h1>
+          <p>Autonomous Predictive Cloud Scaler</p>
+        </div>
+      </a>
+      
+      <div class="header-badges">
+        <div class="badge-pill">
+          <span class="status-dot"></span>
+          <span>Fleet: us-east-1 (Active)</span>
+        </div>
+        <div class="badge-pill">
+          <span>Target SLA: &lt; 70% CPU</span>
+        </div>
+        <div class="badge-pill" style="color: var(--accent-cyan);">
+          <span>Orchestrator: Auto-Elastic</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+    
+    <!-- Hero Status Banner -->
+    <div class="hero-banner">
+      <div>
+        <div class="hero-banner-title">⚡ Real-time Machine Learning Auto-Scaler Active</div>
+        <div class="hero-banner-subtitle">Predicts upcoming compute spikes from ingress request rates and maintains balanced cloud node provisioning.</div>
+      </div>
+      <div class="telemetry-tag">TELEMETRY: LIVE POLLING</div>
+    </div>
+
+    <!-- Primary Control & Result Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Card 1: Input Controls -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-title-icon">📊</span>
+            Workload Telemetry Input
+          </h2>
+          <span style="font-size: 12px; color: var(--text-dim);">Live Parameters</span>
+        </div>
+
+        <!-- Quick Load Presets -->
+        <div class="preset-container">
+          <button type="button" class="preset-btn" onclick="applyPreset(45, 50, 250)">
+            <span>⚖️</span> Normal (250 rps)
+          </button>
+          <button type="button" class="preset-btn" onclick="applyPreset(80, 60, 600)">
+            <span>🔥</span> Spike (600 rps)
+          </button>
+          <button type="button" class="preset-btn" onclick="applyPreset(15, 20, 50)">
+            <span>🌙</span> Off-Peak (50 rps)
+          </button>
+        </div>
+
+        <form method="post" id="scalerForm">
+          <!-- CPU Input -->
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="cpu" class="form-label">Current CPU Utilization</label>
+              <span class="form-val-display" id="cpuDisplay">{{ cpu }}%</span>
+            </div>
+            <input id="cpu" name="cpu" type="number" min="0" max="100" step="0.1" value="{{ cpu }}" required oninput="syncSlider('cpu')">
+            <input type="range" class="input-slider" id="cpuSlider" min="0" max="100" step="1" value="{{ cpu }}" oninput="syncNumber('cpu')">
+          </div>
+
+          <!-- Memory Input -->
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="memory" class="form-label">Current Memory Load</label>
+              <span class="form-val-display" id="memoryDisplay">{{ memory }}%</span>
+            </div>
+            <input id="memory" name="memory" type="number" min="0" max="100" step="0.1" value="{{ memory }}" required oninput="syncSlider('memory')">
+            <input type="range" class="input-slider" id="memorySlider" min="0" max="100" step="1" value="{{ memory }}" oninput="syncNumber('memory')">
+          </div>
+
+          <!-- Requests Input -->
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="requests" class="form-label">Incoming Requests / Min</label>
+              <span class="form-val-display" id="requestsDisplay">{{ requests }} req/min</span>
+            </div>
+            <input id="requests" name="requests" type="number" min="0" max="100000" value="{{ requests }}" required oninput="document.getElementById('requestsDisplay').innerText = this.value + ' req/min'">
+          </div>
+
+          <button type="submit" class="submit-btn" id="predictBtn">
+            <span>⚡ Run AI Prediction &amp; Recommend Scaling</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Card 2: AI Prediction & Scaling Decision -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-title-icon">🤖</span>
+            Prediction &amp; Resource Allocation
+          </h2>
+          <span style="font-size: 12px; color: var(--accent-emerald);">● Real-Time Inference</span>
+        </div>
+
+        <!-- 2 Metric KPI Blocks -->
+        <div class="metrics-summary-grid">
+          <div class="metric-box">
+            <div class="metric-caption">Predicted CPU Load</div>
+            <div class="metric-number cpu-val" id="predictedCpuVal">{{ predicted_cpu }}%</div>
+          </div>
+          <div class="metric-box instances-box">
+            <div class="metric-caption">Allocated Nodes</div>
+            <div class="metric-number instance-val" id="instancesVal">{{ instances }} Instance{% if instances > 1 %}s{% endif %}</div>
+          </div>
+        </div>
+
+        <!-- Action Recommendation Banner -->
+        <div class="action-banner {% if 'Scale up' in action %}scale-up{% elif 'Scale down' in action %}scale-down{% else %}steady{% endif %}" id="actionBanner">
+          <div class="action-icon" id="actionIcon">{% if 'Scale up' in action %}🚀{% elif 'Scale down' in action %}💤{% else %}✅{% endif %}</div>
+          <div>
+            <div class="action-text-title" id="actionTitle">{{ action }}</div>
+            <div class="action-text-desc" id="actionDesc">
+              {% if 'Scale up' in action %}High demand detected. Provisioning extra compute node to maintain low latency.
+              {% elif 'Scale down' in action %}Underutilized compute capacity. Terminating idle instance to cut cloud costs.
+              {% else %}Balanced operational capacity. Workload is well within the 30% - 70% optimal bracket.{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Cluster Nodes Representation -->
+        <div class="cluster-visualizer">
+          <div class="cluster-title" id="clusterTitle">Active Server Cluster Nodes (Current: {{ instances }} Active)</div>
+          <div class="nodes-row">
+            <div class="node-slot {% if instances >= 1 %}active{% endif %}" id="nodeSlot1">
+              <div class="node-icon">🖥️</div>
+              <div class="node-name">Node-01</div>
+              <div class="node-status" id="nodeStatus1">{% if instances >= 1 %}ONLINE{% else %}STANDBY{% endif %}</div>
+            </div>
+            <div class="node-slot {% if instances >= 2 %}active{% endif %}" id="nodeSlot2">
+              <div class="node-icon">🖥️</div>
+              <div class="node-name">Node-02</div>
+              <div class="node-status" id="nodeStatus2">{% if instances >= 2 %}ONLINE{% else %}STANDBY{% endif %}</div>
+            </div>
+            <div class="node-slot {% if instances >= 3 %}active{% endif %}" id="nodeSlot3">
+              <div class="node-icon">🖥️</div>
+              <div class="node-name">Node-03</div>
+              <div class="node-status" id="nodeStatus3">{% if instances >= 3 %}ONLINE{% else %}STANDBY{% endif %}</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-dim); line-height: 1.5;">
+          <strong>Autonomous Policy:</strong> Predicted CPU &gt; 70% or Memory &gt; 80% &rarr; <code>Scale Up</code>; Below 30% CPU &amp; 40% Mem &rarr; <code>Scale Down</code>; Otherwise &rarr; <code>Maintain</code>.
+        </p>
+      </section>
+
+    </div>
+
+    <!-- Secondary Charts & Logs Grid -->
+    <div class="secondary-grid">
+      
+      <!-- Chart Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-title-icon">📈</span>
+            Trained Regression &amp; Workload Profile
+          </h2>
+          <span id="liveChartBadge" style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;">● Dynamic Operating State</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="workloadChart"></canvas>
+        </div>
+      </section>
+
+      <!-- History Table Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="card-title-icon">🕒</span>
+            Recent Prediction Audit Trail
+          </h2>
+          <span style="font-size: 12px; color: var(--text-dim);">Last 5 Inferences</span>
+        </div>
+        <div class="table-container">
+          {% if history %}
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Input CPU</th>
+                <th>Predicted</th>
+                <th>Instances</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              {% for row in history %}
+              <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}%</td>
+                <td style="color: var(--accent-cyan); font-weight: 600;">{{ row[2] }}%</td>
+                <td><span class="instance-badge">{{ row[3] }} Node{% if row[3] > 1 %}s{% endif %}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div id="noHistoryMsg" style="text-align: center; padding: 40px 10px; color: var(--text-dim);">
+            <div style="font-size: 24px; margin-bottom: 8px;">📋</div>
+            <p style="font-size: 13px;">No audit records found yet. Workload telemetry will appear here.</p>
+          </div>
+          <table style="display: none;" id="dynamicTable">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Input CPU</th>
+                <th>Predicted</th>
+                <th>Instances</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+          {% endif %}
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <span>⚡ <strong>SmartScaler AI</strong></span>
+      <span>•</span>
+      <span>Autonomous Cloud Elasticity &amp; Infrastructure Orchestrator</span>
+    </div>
+    <div class="footer-right">
+      Production Fleet Management Console • v2.4
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Pure Real-Time Linear Regression & Scaling Logic in Client
+    function computeScaling(cpu, mem, req) {
+      // Linear Regression model: slope = 1/6 (0.166667), intercept = 3.333333
+      const reqPrediction = (req / 6.0) + (10.0 / 3.0);
+      const predictedCpu = Math.max(0, Math.min(100, (0.7 * reqPrediction) + (0.3 * cpu)));
+      const roundedCpu = Math.round(predictedCpu * 10) / 10;
+
+      let instances = 2;
+      let action = "No change needed";
+      let actionType = "steady";
+      let desc = "Balanced operational capacity. Workload is well within the 30% - 70% optimal bracket.";
+      let icon = "✅";
+
+      if (roundedCpu > 70 || mem > 80) {
+        instances = 3;
+        action = "Scale up: add 1 instance";
+        actionType = "scale-up";
+        desc = "High demand detected. Provisioning extra compute node to maintain low latency.";
+        icon = "🚀";
+      } else if (roundedCpu < 30 && mem < 40) {
+        instances = 1;
+        action = "Scale down: remove 1 instance";
+        actionType = "scale-down";
+        desc = "Underutilized compute capacity. Terminating idle instance to cut cloud costs.";
+        icon = "💤";
+      }
+
+      return {
+        predictedCpu: roundedCpu,
+        instances: instances,
+        action: action,
+        actionType: actionType,
+        desc: desc,
+        icon: icon
+      };
+    }
+
+    // Auto-update cluster and prediction cards instantly in real-time
+    function autoUpdateCluster(saveToDatabase = true) {
+      const cpu = parseFloat(document.getElementById('cpu').value) || 0;
+      const mem = parseFloat(document.getElementById('memory').value) || 0;
+      const req = parseInt(document.getElementById('requests').value) || 0;
+
+      const result = computeScaling(cpu, mem, req);
+
+      // 1. Update Metric Numbers
+      const predCpuEl = document.getElementById('predictedCpuVal');
+      if (predCpuEl) predCpuEl.innerText = result.predictedCpu + '%';
+
+      const instEl = document.getElementById('instancesVal');
+      if (instEl) instEl.innerText = result.instances + ' Instance' + (result.instances > 1 ? 's' : '');
+
+      // 2. Update Action Recommendation Banner
+      const banner = document.getElementById('actionBanner');
+      if (banner) banner.className = 'action-banner ' + result.actionType;
+
+      const actionIconEl = document.getElementById('actionIcon');
+      if (actionIconEl) actionIconEl.innerText = result.icon;
+
+      const actionTitleEl = document.getElementById('actionTitle');
+      if (actionTitleEl) actionTitleEl.innerText = result.action;
+
+      const actionDescEl = document.getElementById('actionDesc');
+      if (actionDescEl) actionDescEl.innerText = result.desc;
+
+      // 3. Update Cluster Visualizer Server Nodes
+      const clusterTitle = document.getElementById('clusterTitle');
+      if (clusterTitle) clusterTitle.innerText = `Active Server Cluster Nodes (Current: ${result.instances} Active)`;
+
+      for (let i = 1; i <= 3; i++) {
+        const slot = document.getElementById('nodeSlot' + i);
+        const status = document.getElementById('nodeStatus' + i);
+        if (slot && status) {
+          if (result.instances >= i) {
+            slot.classList.add('active');
+            status.innerText = 'ONLINE';
+          } else {
+            slot.classList.remove('active');
+            status.innerText = 'STANDBY';
+          }
+        }
+      }
+
+      // 4. Update Chart Operating Point in Real-Time
+      updateChartOperatingPoint(req, result.predictedCpu);
+
+      // 5. Background Sync to Server & Database (debounced 400ms)
+      if (saveToDatabase) {
+        scheduleBackgroundSync(cpu, mem, req);
+      }
+    }
+
+    // Debounce timer for saving to database
+    let syncTimeout = null;
+    function scheduleBackgroundSync(cpu, mem, req) {
+      clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpu: cpu, memory: mem, requests: req, save: true })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.history) {
+            renderHistoryRows(data.history);
+          }
+        })
+        .catch(err => console.log('Background sync in progress...', err));
+      }, 400);
+    }
+
+    // Render live table rows dynamically
+    function renderHistoryRows(history) {
+      let tbody = document.getElementById('historyTableBody');
+      const dynamicTable = document.getElementById('dynamicTable');
+      const noHistory = document.getElementById('noHistoryMsg');
+
+      if (noHistory) noHistory.style.display = 'none';
+      if (dynamicTable) dynamicTable.style.display = 'table';
+
+      if (!tbody) {
+        tbody = document.querySelector('table tbody');
+      }
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      history.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row[0]}</td>
+          <td>${row[1]}%</td>
+          <td style="color: var(--accent-cyan); font-weight: 600;">${row[2]}%</td>
+          <td><span class="instance-badge">${row[3]} Node${row[3] > 1 ? 's' : ''}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Sync range sliders and numeric input fields
+    function syncSlider(field) {
+      const val = document.getElementById(field).value;
+      document.getElementById(field + 'Slider').value = val;
+      document.getElementById(field + 'Display').innerText = val + '%';
+      autoUpdateCluster(true);
+    }
+
+    function syncNumber(field) {
+      const val = document.getElementById(field + 'Slider').value;
+      document.getElementById(field).value = val;
+      document.getElementById(field + 'Display').innerText = val + '%';
+      autoUpdateCluster(true);
+    }
+
+    // Quick Preset Helper
+    function applyPreset(cpu, mem, req) {
+      document.getElementById('cpu').value = cpu;
+      document.getElementById('cpuSlider').value = cpu;
+      document.getElementById('cpuDisplay').innerText = cpu + '%';
+
+      document.getElementById('memory').value = mem;
+      document.getElementById('memorySlider').value = mem;
+      document.getElementById('memoryDisplay').innerText = mem + '%';
+
+      document.getElementById('requests').value = req;
+      document.getElementById('requestsDisplay').innerText = req + ' req/min';
+
+      autoUpdateCluster(true);
+    }
+
+    // Prevent full page reload on form submit, update instantly
+    document.getElementById('scalerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      autoUpdateCluster(true);
+    });
+
+    // Chart.js Configuration with Real-Time Linear Scaling
+    const initialReq = {{ requests }};
+    const initialCpu = {{ predicted_cpu }};
+
+    function generateTrendline(maxReq) {
+      const points = [];
+      const step = Math.max(25, Math.round(maxReq / 20));
+      for (let r = 0; r <= maxReq; r += step) {
+        const estCpu = Math.min(100, Math.round(((r / 6.0) + (10.0 / 3.0)) * 10) / 10);
+        points.push({ x: r, y: estCpu });
+      }
+      return points;
+    }
+
+    const initialMaxReq = Math.max(650, Math.ceil((initialReq + 150) / 100) * 100);
+    const ctx = document.getElementById('workloadChart').getContext('2d');
+    
+    // Create gradient fill for chart line
+    const gradientFill = ctx.createLinearGradient(0, 0, 0, 240);
+    gradientFill.addColorStop(0, 'rgba(99, 102, 241, 0.40)');
+    gradientFill.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+    const workloadChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Predicted Workload Curve',
+            data: generateTrendline(initialMaxReq),
+            borderColor: '#6366f1',
+            backgroundColor: gradientFill,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 4
+          },
+          {
+            label: 'Scale-Up Threshold (70%)',
+            data: [{ x: 0, y: 70 }, { x: initialMaxReq, y: 70 }],
+            borderColor: '#f43f5e',
+            borderDash: [5, 5],
+            borderWidth: 1.5,
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: 'Scale-Down Threshold (30%)',
+            data: [{ x: 0, y: 30 }, { x: initialMaxReq, y: 30 }],
+            borderColor: '#f59e0b',
+            borderDash: [5, 5],
+            borderWidth: 1.5,
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: 'Active Operating Point',
+            data: [{ x: initialReq, y: initialCpu }],
+            borderColor: '#ffffff',
+            backgroundColor: '#06b6d4',
+            borderWidth: 3,
+            pointRadius: 8,
+            pointHoverRadius: 11,
+            showLine: false,
+            pointStyle: 'circle'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#94a3b8',
+              font: { family: 'Plus Jakarta Sans', size: 11, weight: '500' },
+              boxWidth: 12,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#f8fafc',
+            bodyColor: '#06b6d4',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.parsed.x} rpm → ${context.parsed.y}% CPU`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            min: 0,
+            max: initialMaxReq,
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            title: { display: true, text: 'Incoming Traffic (rpm)', color: '#64748b', font: { size: 11 } },
+            ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            title: { display: true, text: 'CPU Utilization (%)', color: '#64748b', font: { size: 11 } },
+            ticks: {
+              color: '#64748b',
+              font: { family: 'JetBrains Mono', size: 10 },
+              callback: value => value + '%'
+            }
+          }
+        }
+      }
+    });
+
+    // Dynamically updates chart when slider moves
+    function updateChartOperatingPoint(req, predCpu) {
+      if (!workloadChart) return;
+      const maxReq = Math.max(650, Math.ceil((req + 150) / 100) * 100);
+
+      // 1. Update x-axis boundary if request exceeds current max
+      workloadChart.options.scales.x.max = maxReq;
+
+      // 2. Update Threshold lines
+      workloadChart.data.datasets[1].data = [{ x: 0, y: 70 }, { x: maxReq, y: 70 }];
+      workloadChart.data.datasets[2].data = [{ x: 0, y: 30 }, { x: maxReq, y: 30 }];
+
+      // 3. Update Trendline points
+      workloadChart.data.datasets[0].data = generateTrendline(maxReq);
+
+      // 4. Update the active operating point
+      workloadChart.data.datasets[3].data = [{ x: req, y: predCpu }];
+
+      workloadChart.update('none');
+    }
+  </script>
+</body>
+</html>
